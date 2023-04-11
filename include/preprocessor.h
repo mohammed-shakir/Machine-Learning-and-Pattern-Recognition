@@ -9,6 +9,8 @@ public:
 
     void missingValues();
     void printData();
+    void exportDataToCSV(const std::string& outputFileName);
+    void visualizeData();
 
 private:
     std::vector<std::vector<float>> data{};

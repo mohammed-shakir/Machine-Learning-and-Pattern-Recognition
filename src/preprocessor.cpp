@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <limits>
+#include "matplotlibcpp.h"
 
 #define LINE_SIZE 240
 
@@ -75,5 +76,29 @@ void Preprocessor::missingValues() {
             }
         }
     }
+}
+
+void Preprocessor::exportDataToCSV(const std::string& outputFileName) {
+    std::ofstream file(outputFileName);
+
+    if (!file.is_open()) {
+        std::runtime_error("Could not open file");
+    }
+
+    for (uint32_t i = 0; i < data.size(); i++) {
+        for(uint32_t j = 0; j < data[i].size(); j++){
+            file << data[i][j];
+            if(j != data[i].size() - 1){
+                file << gestureName[i] << gestureID[i] << ",";
+            }
+        }
+        file << std::endl;
+    }
+
+    file.close();
+}
+
+void Preprocessor::visualizeData() {
+    // TODO
 }
 
