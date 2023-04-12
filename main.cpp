@@ -5,7 +5,8 @@ int main() {
     Model model("train-final.csv");
 
     model.missingData();
-    model.printData();
+
+    //model.printData();
 
     return 0;
 }
