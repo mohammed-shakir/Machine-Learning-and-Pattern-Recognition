@@ -1,11 +1,14 @@
-#include "preprocessor.h"
 #include <iostream>
 
-int main() {
-    Preprocessor p("train-final.csv");
-    // p.printData();
+#include "model.h"
 
-    p.missingValues();
+int main() {
+    
+    Model model("train-final.csv");
+
+    model.missingData();
+
+    model.printData();
 
     return 0;
 }
