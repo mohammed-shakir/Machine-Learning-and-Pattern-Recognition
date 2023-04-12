@@ -29,9 +29,9 @@ public:
     std::string getName() const { return name; }
 
 private:
-    std::string name;
     Coordinate meanCoors;
     Coordinate stdCoors;
+    std::string name;
 };
 
 class Gesture
@@ -57,7 +57,7 @@ public:
     std::string getName() const { return name; }
     uint32_t getId() const { return id; }
 
-    Joint getJointByIndex(int index) const { return joints[index]; }
+    Joint& getJointByIndex(int index) { return joints[index]; }
 
     Averages getMeanAverages() const { return meanAverages; }
     Averages getStdAverages() const { return stdAverages; }
