@@ -8,7 +8,7 @@ int main() {
 
     model.missingData();
 
-    model.printData();
+    //model.printData();
 
     return 0;
 }
