@@ -13,7 +13,8 @@ Model::Model(std::string fileName) {
 
 Model::~Model() {}
 
-void Model::loadData(std::string fileName) {
+void Model::loadData(std::string fileName)
+{
     std::ifstream file(fileName);
 
     if (!file.is_open()) {
@@ -27,27 +28,30 @@ void Model::loadData(std::string fileName) {
         std::stringstream ss(row);
         std::string col;
 
-        while(std::getline(ss, col, ',')) {
+        while (std::getline(ss, col, ','))
+        {
             raw_data.back().push_back(col);
         }
     }
 
     file.close();
 
-    for (size_t row_i = 0; row_i < raw_data.size(); row_i++) {
+    for (size_t row_i = 0; row_i < raw_data.size(); row_i++)
+    {
         Gesture gesture = Gesture();
         std::string name = raw_data[row_i][raw_data[row_i].size() - 2];
         std::transform(name.begin(), name.end(), name.begin(),
-        [](unsigned char c){ return std::tolower(c); });
+                       [](unsigned char c)
+                       { return std::tolower(c); });
         gesture.setName(name);
         gesture.setId(std::stoi(raw_data[row_i][raw_data[row_i].size() - 1]));
         Averages meanAverages;
         Averages stdAverages;
-
-        for (size_t col_i = 0; col_i < ITEM_SIZE; col_i += 3) {
+        for (size_t col_i = 0; col_i < ITEM_SIZE; col_i += 3)
+        {
             Coordinate meanCoors;
             Coordinate stdCoors;
-            
+
             meanCoors.x = raw_data[row_i][col_i] != "" ? std::stof(raw_data[row_i][col_i]) : std::numeric_limits<float>::quiet_NaN();
             meanCoors.y = raw_data[row_i][col_i + 1] != "" ? std::stof(raw_data[row_i][col_i + 1]) : std::numeric_limits<float>::quiet_NaN();
             meanCoors.z = raw_data[row_i][col_i + 2] != "" ? std::stof(raw_data[row_i][col_i + 2]) : std::numeric_limits<float>::quiet_NaN();
@@ -83,106 +87,137 @@ void Model::loadData(std::string fileName) {
             meanCoors.type = Coordinate::Type::MEAN;
             stdCoors.type = Coordinate::Type::STD;
 
-            gesture.addJoint(meanCoors, stdCoors, JOINT_NAMES[col_i/3]);
+            // std::cout << "Processing joint: " << JOINT_NAMES[col_i / 3] << " (row: " << row_i << ", col: " << col_i << ")" << std::endl;
+            gesture.addJoint(meanCoors, stdCoors, JOINT_NAMES[col_i / 3]);
         }
 
-        meanAverages.x /= ITEM_SIZE/3;
-        meanAverages.y /= ITEM_SIZE/3;
-        meanAverages.z /= ITEM_SIZE/3;
-        meanAverages.x_angle /= ITEM_SIZE/3;
-        meanAverages.y_angle /= ITEM_SIZE/3;
-        meanAverages.z_angle /= ITEM_SIZE/3;
+        meanAverages.x /= ITEM_SIZE / 3;
+        meanAverages.y /= ITEM_SIZE / 3;
+        meanAverages.z /= ITEM_SIZE / 3;
+        meanAverages.x_angle /= ITEM_SIZE / 3;
+        meanAverages.y_angle /= ITEM_SIZE / 3;
+        meanAverages.z_angle /= ITEM_SIZE / 3;
 
-        stdAverages.x /= ITEM_SIZE/3;
-        stdAverages.y /= ITEM_SIZE/3;
-        stdAverages.z /= ITEM_SIZE/3;
-        stdAverages.x_angle /= ITEM_SIZE/3;
-        stdAverages.y_angle /= ITEM_SIZE/3;
-        stdAverages.z_angle /= ITEM_SIZE/3;
+        stdAverages.x /= ITEM_SIZE / 3;
+        stdAverages.y /= ITEM_SIZE / 3;
+        stdAverages.z /= ITEM_SIZE / 3;
+        stdAverages.x_angle /= ITEM_SIZE / 3;
+        stdAverages.y_angle /= ITEM_SIZE / 3;
+        stdAverages.z_angle /= ITEM_SIZE / 3;
+
+        //std::cout << "Amount of joints: " << gesture.size() << std::endl;
 
         gestures.push_back(gesture);
     }
 }
 
-void Model::missingData() {
-    for (size_t i = 0; i < gestures.size(); i++) {
-        for(int j = 0; j < ITEM_SIZE; j += 3) {
-            Joint joint = gestures[i].getJointByIndex(j);
+void Model::missingData()
+{
+    // std::cout << "Gestures size: " << gestures.size() << std::endl;
+    // std::cout << "Gestures size: " << gestures.size() << std::endl;
+    // std::cout << "Gesture 0 name: " << gestures[0].getName() << std::endl;
+    // std::cout << "Gesture 0 joint count: " << gestures[0].size() << std::endl;
+    for (size_t i = 0; i < gestures.size(); i++)
+    {
+        std::cout << "Joint length: " << gestures[i].size() << std::endl;
+        for (size_t j = 0; j < gestures[i].size(); j ++)
+        {
+            try
+            {
+                Joint &joint = gestures[i].getJointByIndex(j);
+                Coordinate joint_mean_coors = joint.getMeanCoors();
+                Coordinate joint_std_coors = joint.getStdCoors();
 
-            Coordinate joint_mean_coors = joint.getMeanCoors();
-            Coordinate joint_std_coors = joint.getStdCoors();
+                if (joint_mean_coors.x == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_mean_coors.x = gestures[i].getMeanAverages().x;
+                }
+                if (joint_mean_coors.y == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_mean_coors.y = gestures[i].getMeanAverages().y;
+                }
 
+                if (joint_mean_coors.z == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_mean_coors.z = gestures[i].getMeanAverages().z;
+                }
 
-            if (joint_mean_coors.x == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_mean_coors.x = gestures[i].getMeanAverages().x;
+                if (joint_mean_coors.x_angle == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_mean_coors.x_angle = gestures[i].getMeanAverages().x_angle;
+                }
+
+                if (joint_mean_coors.y_angle == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_mean_coors.y_angle = gestures[i].getMeanAverages().y_angle;
+                }
+
+                if (joint_mean_coors.z_angle == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_mean_coors.z_angle = gestures[i].getMeanAverages().z_angle;
+                }
+
+                if (joint_std_coors.x == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_std_coors.x = gestures[i].getStdAverages().x;
+                }
+
+                if (joint_std_coors.y == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_std_coors.y = gestures[i].getStdAverages().y;
+                }
+
+                if (joint_std_coors.z == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_std_coors.z = gestures[i].getStdAverages().z;
+                }
+
+                if (joint_std_coors.x_angle == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_std_coors.x_angle = gestures[i].getStdAverages().x_angle;
+                }
+
+                if (joint_std_coors.y_angle == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_std_coors.y_angle = gestures[i].getStdAverages().y_angle;
+                }
+
+                if (joint_std_coors.z_angle == std::numeric_limits<float>::quiet_NaN())
+                {
+                    std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
+                    joint_std_coors.z_angle = gestures[i].getStdAverages().z_angle;
+                }
+
+                gestures[i].getJointByIndex(j).setMeanCoors(joint_mean_coors);
+                gestures[i].getJointByIndex(j).setStdCoors(joint_std_coors);
             }
-            if (joint_mean_coors.y == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_mean_coors.y = gestures[i].getMeanAverages().y;
+            catch (const std::bad_alloc &e)
+            {
+                std::cerr << "Error: " << e.what() << " at iteration " << i << ", joint " << j << std::endl;
             }
-
-            if (joint_mean_coors.z == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_mean_coors.z = gestures[i].getMeanAverages().z;
-            }
-
-            if (joint_mean_coors.x_angle == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_mean_coors.x_angle = gestures[i].getMeanAverages().x_angle;
-            }
-
-            if (joint_mean_coors.y_angle == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_mean_coors.y_angle = gestures[i].getMeanAverages().y_angle;
-            }
-
-            if (joint_mean_coors.z_angle == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_mean_coors.z_angle = gestures[i].getMeanAverages().z_angle;
-            }
-
-            if (joint_std_coors.x == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_std_coors.x = gestures[i].getStdAverages().x;
-            }
-
-            if (joint_std_coors.y == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_std_coors.y = gestures[i].getStdAverages().y;
-            }
-
-
-            if (joint_std_coors.z == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_std_coors.z = gestures[i].getStdAverages().z;
-            }
-
-            if (joint_std_coors.x_angle == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_std_coors.x_angle = gestures[i].getStdAverages().x_angle;
-            }
-
-            if (joint_std_coors.y_angle == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_std_coors.y_angle = gestures[i].getStdAverages().y_angle;
-            }
-
-            if (joint_std_coors.z_angle == std::numeric_limits<float>::quiet_NaN()) {
-                std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
-                joint_std_coors.z_angle = gestures[i].getStdAverages().z_angle;
-            }
-
-            gestures[i].getJointByIndex(j).setMeanCoors(joint_mean_coors);
-            gestures[i].getJointByIndex(j).setStdCoors(joint_std_coors);
         }
     }
 }
 
-void Model::printData() {
-    for (size_t i = 0; i < gestures.size(); i++) {
+void Model::printData()
+{
+    std::cout << "Starting print " << std::endl;
+    for (size_t i = 0; i < gestures.size(); i++)
+    {
         std::cout << "Gesture: " << gestures[i].getName() << std::endl;
-        for (int j = 0; j < ITEM_SIZE; j += 3) {
+        for (size_t j = 0; j < gestures[i].size(); j ++)
+        {
             std::cout << "Joint: " << gestures[i].getJointByIndex(j).getName() << std::endl;
             std::cout << "Mean Coors: " << gestures[i].getJointByIndex(j).getMeanCoors().x << " " << gestures[i].getJointByIndex(j).getMeanCoors().y << " " << gestures[i].getJointByIndex(j).getMeanCoors().z << " " << gestures[i].getJointByIndex(j).getMeanCoors().x_angle << " " << gestures[i].getJointByIndex(j).getMeanCoors().y_angle << " " << gestures[i].getJointByIndex(j).getMeanCoors().z_angle << std::endl;
             std::cout << "Std Coors: " << gestures[i].getJointByIndex(j).getStdCoors().x << " " << gestures[i].getJointByIndex(j).getStdCoors().y << " " << gestures[i].getJointByIndex(j).getStdCoors().z << " " << gestures[i].getJointByIndex(j).getStdCoors().x_angle << " " << gestures[i].getJointByIndex(j).getStdCoors().y_angle << " " << gestures[i].getJointByIndex(j).getStdCoors().z_angle << std::endl;
