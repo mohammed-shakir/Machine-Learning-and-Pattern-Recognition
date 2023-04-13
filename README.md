@@ -62,7 +62,7 @@ cmake ..
 and compile:
 
 ```
-cmake build .
+cmake --build .
 ```
 
 ### Running the program
