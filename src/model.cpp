@@ -7,27 +7,24 @@
 
 #define ITEM_SIZE 60
 
-Model::Model(std::string fileName)
-{
+Model::Model(std::string fileName) {
     loadData(fileName);
     createConnections();
 }
 
-Model::~Model()
-{
-}
+Model::~Model() {}
 
 void Model::loadData(std::string fileName)
 {
     std::ifstream file(fileName);
 
-    if (!file.is_open())
-    {
+    if (!file.is_open()) {
         std::runtime_error("Could not open file");
     }
+
     std::string row;
-    while (std::getline(file, row))
-    {
+
+    while (std::getline(file, row)) {
         raw_data.push_back(std::vector<std::string>());
         std::stringstream ss(row);
         std::string col;
