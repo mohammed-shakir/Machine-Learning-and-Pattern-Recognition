@@ -26,12 +26,16 @@ public:
     void setMeanCoors(Coordinate coors) { meanCoors = coors; }
     void setStdCoors(Coordinate coors) { stdCoors = coors; }
 
+    void addConnection(Joint* joint) { connectedTo.push_back(joint); }
+    std::vector<Joint*> getConnections() const { return connectedTo; }
+
     std::string getName() const { return name; }
 
 private:
     Coordinate meanCoors;
     Coordinate stdCoors;
     std::string name;
+    std::vector<Joint*> connectedTo{};
 };
 
 class Gesture
@@ -64,6 +68,16 @@ public:
 
     void setMeanAverages(Averages averages) { meanAverages = averages; }
     void setStdAverages(Averages averages) { stdAverages = averages; }
+    Joint& getJointByName(std::string name)
+    {
+        for (auto& joint : joints)
+        {
+            if (joint.getName() == name)
+            {
+                return joint;
+            }
+        }
+    }
 
     size_t size() const { return numJoints; }
 

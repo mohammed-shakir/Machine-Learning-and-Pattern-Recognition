@@ -10,6 +10,7 @@
 Model::Model(std::string fileName)
 {
     loadData(fileName);
+    createConnections();
 }
 
 Model::~Model()
@@ -49,8 +50,8 @@ void Model::loadData(std::string fileName)
         gesture.setName(name);
         gesture.setId(std::stoi(raw_data[row_i][raw_data[row_i].size() - 1]));
 
-        Averages meanAverages;
-        Averages stdAverages;
+        Averages meanAverages = Averages();
+        Averages stdAverages = Averages();
         for (size_t col_i = 0; col_i < ITEM_SIZE; col_i += 3)
         {
             Coordinate meanCoors;
@@ -200,9 +201,33 @@ void Model::missingData()
                 std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
                 joint_std_coors.z_angle = gestures[i].getStdAverages().z_angle;
             }
+        }
+    }
+}
 
-            gestures[i].getJointByIndex(j).setMeanCoors(joint_mean_coors);
-            gestures[i].getJointByIndex(j).setStdCoors(joint_std_coors);
+void Model::createConnections()
+{
+    for (size_t i = 0; i < gestures.size(); i++)
+    {
+        for (size_t j = 0; j < gestures[i].size(); j++)
+        {
+            auto &joint = gestures[i].getJointByIndex(j);
+            auto connections = JOINT_CONNECTIONS.find(joint.getName());
+            if (connections != JOINT_CONNECTIONS.end())
+            {
+                for (auto &connectionName : connections->second)
+                {
+                    for (size_t k = 0; k < gestures[i].size(); k++)
+                    {
+                        auto &connection = gestures[i].getJointByIndex(k);
+                        if (connection.getName() == connectionName)
+                        {
+                            joint.addConnection(&connection);
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -222,6 +247,7 @@ void Model::printData()
     }
 }
 
-void Model::visualizeData()
+void Model::visualizeGesture(int id)
 {
+    visualizer.writeToFile(gestures[id], gestures[id].getName() + ".pcd");
 }
