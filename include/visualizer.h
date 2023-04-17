@@ -5,5 +5,5 @@
 
 class Visualizer{
 public:
-    void writeToFile(Gesture &gesture, std::string fileName);
+    void visualizeGesture(Gesture &gesture);
 };

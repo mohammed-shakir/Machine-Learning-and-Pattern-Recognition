@@ -37,7 +37,7 @@ void Model::loadData(std::string fileName)
 
     file.close();
 
-    for (size_t row_i = 0; row_i < raw_data.size(); row_i++)
+    for (auto row_i = 0; row_i < raw_data.size(); row_i++)
     {
         Gesture gesture = Gesture();
         std::string name = raw_data[row_i][raw_data[row_i].size() - 2];
@@ -49,7 +49,7 @@ void Model::loadData(std::string fileName)
 
         Averages meanAverages = Averages();
         Averages stdAverages = Averages();
-        for (size_t col_i = 0; col_i < ITEM_SIZE; col_i += 3)
+        for (auto col_i = 0; col_i < ITEM_SIZE; col_i += 3)
         {
             Coordinate meanCoors;
             Coordinate stdCoors;
@@ -119,10 +119,10 @@ void Model::missingData()
     // std::cout << "Gestures size: " << gestures.size() << std::endl;
     // std::cout << "Gesture 0 name: " << gestures[0].getName() << std::endl;
     // std::cout << "Gesture 0 joint count: " << gestures[0].size() << std::endl;
-    for (size_t i = 0; i < gestures.size(); i++)
+    for (auto i = 0; i < gestures.size(); i++)
     {
         // std::cout << "Joint length: " << gestures[i].size() << std::endl;
-        for (size_t j = 0; j < gestures[i].size(); j++)
+        for (auto j = 0; j < gestures[i].size(); j++)
         {
             Joint &joint = gestures[i].getJointByIndex(j);
             Coordinate joint_mean_coors = joint.getMeanCoors();
@@ -204,9 +204,9 @@ void Model::missingData()
 
 void Model::createConnections()
 {
-    for (size_t i = 0; i < gestures.size(); i++)
+    for (auto i = 0; i < gestures.size(); i++)
     {
-        for (size_t j = 0; j < gestures[i].size(); j++)
+        for (auto j = 0; j < gestures[i].size(); j++)
         {
             auto &joint = gestures[i].getJointByIndex(j);
             auto connections = JOINT_CONNECTIONS.find(joint.getName());
@@ -214,7 +214,7 @@ void Model::createConnections()
             {
                 for (auto &connectionName : connections->second)
                 {
-                    for (size_t k = 0; k < gestures[i].size(); k++)
+                    for (auto k = 0; k < gestures[i].size(); k++)
                     {
                         auto &connection = gestures[i].getJointByIndex(k);
                         if (connection.getName() == connectionName)
@@ -232,10 +232,10 @@ void Model::createConnections()
 void Model::printData()
 {
     std::cout << "Starting print " << std::endl;
-    for (size_t i = 0; i < gestures.size(); i++)
+    for (auto i = 0; i < gestures.size(); i++)
     {
         std::cout << "Gesture: " << gestures[i].getName() << std::endl;
-        for (size_t j = 0; j < gestures[i].size(); j++)
+        for (auto j = 0; j < gestures[i].size(); j++)
         {
             std::cout << "Joint: " << gestures[i].getJointByIndex(j).getName() << std::endl;
             std::cout << "Mean Coors: " << gestures[i].getJointByIndex(j).getMeanCoors().x << " " << gestures[i].getJointByIndex(j).getMeanCoors().y << " " << gestures[i].getJointByIndex(j).getMeanCoors().z << " " << gestures[i].getJointByIndex(j).getMeanCoors().x_angle << " " << gestures[i].getJointByIndex(j).getMeanCoors().y_angle << " " << gestures[i].getJointByIndex(j).getMeanCoors().z_angle << std::endl;
@@ -246,5 +246,5 @@ void Model::printData()
 
 void Model::visualizeGesture(int id)
 {
-    visualizer.writeToFile(gestures[id], gestures[id].getName() + ".pcd");
+    visualizer.visualizeGesture(gestures[id]);
 }

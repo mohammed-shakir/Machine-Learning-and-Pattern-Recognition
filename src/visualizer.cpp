@@ -7,7 +7,7 @@
 #include <iostream>
 #include <thread>
 
-void Visualizer::writeToFile(Gesture &gesture, std::string fileName)
+void Visualizer::visualizeGesture(Gesture &gesture)
 {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
 
@@ -17,15 +17,16 @@ void Visualizer::writeToFile(Gesture &gesture, std::string fileName)
     cloud->points.resize(gesture.size());
     pcl::visualization::PCLVisualizer viewer("Gesture: " + gesture.getName());
 
-    for (size_t i = 0; i < cloud->points.size(); ++i)
+    for (auto i = 0; i < cloud->points.size(); ++i)
     {
 
         cloud->points[i].x = gesture.getJointByIndex(i).getMeanCoors().x;
         cloud->points[i].y = gesture.getJointByIndex(i).getMeanCoors().y;
         cloud->points[i].z = gesture.getJointByIndex(i).getMeanCoors().z;
         viewer.addText3D(gesture.getJointByIndex(i).getName(), cloud->points[i], 0.01, 1.0, 0.0, 0.0, "id_" + std::to_string(i), 0);
+        
         // Looks kinda messy, needs some more work
-        for(size_t j = 0; j < gesture.getJointByIndex(i).getConnections().size(); j++)
+        for(auto j = 0; j < gesture.getJointByIndex(i).getConnections().size(); j++)
         {
             pcl::PointXYZ p1, p2;
             p1.x = gesture.getJointByIndex(i).getMeanCoors().x;
@@ -39,8 +40,8 @@ void Visualizer::writeToFile(Gesture &gesture, std::string fileName)
     }
 
     
-    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 100, "cloud name");
     viewer.addPointCloud(cloud, "cloud");
+    viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "cloud");
     while (!viewer.wasStopped())
     {
         viewer.spinOnce(100);
