@@ -1,21 +1,10 @@
 #include "visualizer.h"
-
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/visualization/cloud_viewer.h>
 #include <string>
 #include <iostream>
 #include <thread>
 
-void Visualizer::visualizeGesture(Gesture &gesture)
+void Visualizer::visualizeGesture(Gesture &gesture, pcl::visualization::PCLVisualizer viewer, pcl::PointCloud<pcl::PointXYZ> cloud)
 {
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-
-    // Fill in the cloud data
-    cloud->width = 5;
-    cloud->height = 1;
-    cloud->points.resize(gesture.size());
-    pcl::visualization::PCLVisualizer viewer("Gesture: " + gesture.getName());
 
     for (auto i = 0; i < cloud->points.size(); ++i)
     {
@@ -38,8 +27,24 @@ void Visualizer::visualizeGesture(Gesture &gesture)
             viewer.addLine(p1, p2, "id_" + std::to_string(i) + "_" + std::to_string(j), 0);
         }
     }
+}
 
-    
+void Visualizer::visualizeGestureByName(std::string gestureName, std::vector<Gesture> &gestures)
+{
+    pcl::PointCloud<pcl::PointXYZ> cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    cloud->width = 5;
+    cloud->height = 1;
+    // Fill in the cloud data
+    pcl::visualization::PCLVisualizer viewer(new pcl::visualization::PCLVisualizer("Gesture: " + gestureName));
+    for(auto i = 0; i < gestures.size(); i++)
+    {
+        if(gestures[i].getName() == gestureName)
+        {
+            cloud->points.resize(cloud->points.size() + gesture.size());
+            visualizeGesture(gestures[i], viewer, cloud);
+        }
+    }
+
     viewer.addPointCloud(cloud, "cloud");
     viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 5, "cloud");
     while (!viewer.wasStopped())

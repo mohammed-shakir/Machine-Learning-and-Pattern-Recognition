@@ -229,6 +229,38 @@ void Model::createConnections()
     }
 }
 
+void Model::removeSimilarGestures() {
+    std::cout << "Current gestures size: " << gestures.size() << std::endl;
+    for (size_t i = 0; i < gestures.size() - 1; i++) {
+        if(i == gestures.size() - 1) break;
+        for (size_t j = i + 1; j < gestures.size(); j++) {
+            if (isGestureSimilar(gestures[i], gestures[j])) {
+                std::cout << "Removing gesture " << gestures[j].getName() << std::endl;
+                gestures.erase(gestures.begin() + j);
+                j--;
+            }
+        }
+    }
+
+    std::cout << "New gestures size: " << gestures.size() << std::endl;
+}
+
+bool Model::isGestureSimilar(Gesture gesture1, Gesture gesture2){
+    float gesture1Values = 0;
+    float gesture2Values = 0;
+
+    for(size_t i = 0; i < gesture1.size(); i++){
+        gesture1Values += static_cast<float>(gesture1.getJointByIndex(i).getMeanCoors().x + gesture1.getJointByIndex(i).getMeanCoors().y + gesture1.getJointByIndex(i).getMeanCoors().z + gesture1.getJointByIndex(i).getMeanCoors().x_angle + gesture1.getJointByIndex(i).getMeanCoors().y_angle + gesture1.getJointByIndex(i).getMeanCoors().z_angle);
+        gesture2Values += static_cast<float>(gesture2.getJointByIndex(i).getMeanCoors().x + gesture2.getJointByIndex(i).getMeanCoors().y + gesture2.getJointByIndex(i).getMeanCoors().z + gesture2.getJointByIndex(i).getMeanCoors().x_angle + gesture2.getJointByIndex(i).getMeanCoors().y_angle + gesture2.getJointByIndex(i).getMeanCoors().z_angle);
+    }
+
+    if(gesture1Values > gesture2Values){
+        return gesture1Values - gesture2Values < 0.01;
+    } else {
+        return gesture2Values - gesture1Values < 0.01;
+    }
+}
+
 void Model::printData()
 {
     std::cout << "Starting print " << std::endl;
@@ -244,7 +276,6 @@ void Model::printData()
     }
 }
 
-void Model::visualizeGesture(int id)
-{
-    visualizer.visualizeGesture(gestures[id]);
+void Model::visualizeGestureByName(std::string gestureName){
+    visualizer.visualizeGestureByName(gestureName, gestures);
 }

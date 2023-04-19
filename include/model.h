@@ -63,8 +63,9 @@ public:
     void createConnections();
     void printData();
     void missingData();
-    void visualizeGesture(int id);
-
+    void visualizeGestureByName(std::string gestureName);
+    void removeSimilarGestures();
+    bool isGestureSimilar(Gesture gesture1, Gesture gesture2);
 private:
     std::vector<Gesture> gestures{};
     std::vector<std::vector<std::string>> raw_data{};

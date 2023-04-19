@@ -5,10 +5,11 @@ int main() {
     Model model("train-final.csv");
 
     model.missingData();
+    model.removeSimilarGestures();
 
     //model.printData();
 
-    model.visualizeGesture(0);
+    model.visualizeGestureByName("bye");
 
     return 0;
 }
