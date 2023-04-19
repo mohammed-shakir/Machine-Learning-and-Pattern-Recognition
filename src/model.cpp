@@ -231,6 +231,7 @@ void Model::createConnections()
 
 void Model::removeSimilarGestures() {
     std::cout << "Current gestures size: " << gestures.size() << std::endl;
+    size_t oldSize = gestures.size();
     for (size_t i = 0; i < gestures.size() - 1; i++) {
         if(i == gestures.size() - 1) break;
         for (size_t j = i + 1; j < gestures.size(); j++) {
@@ -243,6 +244,7 @@ void Model::removeSimilarGestures() {
     }
 
     std::cout << "New gestures size: " << gestures.size() << std::endl;
+    std::cout << "Removed " << oldSize - gestures.size() << " gestures" << std::endl;
 }
 
 bool Model::isGestureSimilar(Gesture gesture1, Gesture gesture2){

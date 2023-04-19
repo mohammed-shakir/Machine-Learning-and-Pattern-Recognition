@@ -9,6 +9,6 @@
 
 class Visualizer{
 public:
-    void visualizeGesture(Gesture &gesture, pcl::visualization::PCLVisualizer viewer, pcl::PointCloud<pcl::PointXYZ> cloud);
+    void visualizeGesture(Gesture &gesture, pcl::visualization::PCLVisualizer &viewer, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, size_t cloudIndex);
     void visualizeGestureByName(std::string gestureName, std::vector<Gesture> &gestures);
 };
