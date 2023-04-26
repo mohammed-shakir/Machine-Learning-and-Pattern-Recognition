@@ -3,6 +3,7 @@
 #include <sstream>
 #include <limits>
 #include <algorithm>
+#include <set>
 #include "model.h"
 
 #define ITEM_SIZE 60
@@ -261,6 +262,30 @@ bool Model::isGestureSimilar(Gesture gesture1, Gesture gesture2){
     } else {
         return gesture2Values - gesture1Values < 0.01;
     }
+}
+
+void Model::listAllGestures()
+{
+    std::set<std::string> uniqueGestures;
+    for (auto i = 0; i < gestures.size(); i++)
+    {
+        uniqueGestures.insert(gestures[i].getName());
+    }
+
+    std::string result = "";
+    for (const auto& gestureName : uniqueGestures)
+    {
+        result += gestureName + ", ";
+    }
+
+    // Remove the trailing comma and space
+    if (!result.empty())
+    {
+        result.pop_back();
+        result.pop_back();
+    }
+
+    std::cout << result << std::endl;
 }
 
 void Model::printData()

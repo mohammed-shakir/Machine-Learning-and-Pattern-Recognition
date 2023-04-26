@@ -1,7 +1,9 @@
-#include <iostream>
 #include "model.h"
+#include <iostream>
+#include <string>
 
-int main() {
+int main()
+{
     Model model("train-final.csv");
 
     model.missingData();
@@ -9,7 +11,13 @@ int main() {
 
     //model.printData();
 
-    model.visualizeGestureByName("bye");
+    model.listAllGestures();
+
+    std::string gestureName;
+    std::cout << "Enter the name of the gesture you want to visualize: ";
+    std::getline(std::cin, gestureName);
+
+    model.visualizeGestureByName(gestureName);
 
     return 0;
 }
