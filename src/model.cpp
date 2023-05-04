@@ -126,8 +126,8 @@ void Model::missingData()
         for (auto j = 0; j < gestures[i].size(); j++)
         {
             Joint &joint = gestures[i].getJointByIndex(j);
-            Coordinate joint_mean_coors = joint.getMeanCoors();
-            Coordinate joint_std_coors = joint.getStdCoors();
+            Coordinate &joint_mean_coors = joint.getMeanCoors();
+            Coordinate &joint_std_coors = joint.getStdCoors();
 
             if (joint_mean_coors.x == std::numeric_limits<float>::infinity())
             {
@@ -199,6 +199,9 @@ void Model::missingData()
                 std::cout << "Missing data in gesture " << gestures[i].getName() << " joint " << gestures[i].getJointByIndex(j).getName() << std::endl;
                 joint_std_coors.z_angle = gestures[i].getStdAverages().z_angle;
             }
+
+            joint.setMeanCoors(joint_mean_coors);
+            joint.setStdCoors(joint_std_coors);
         }
     }
 }
@@ -301,6 +304,37 @@ void Model::printData()
             std::cout << "Std Coors: " << gestures[i].getJointByIndex(j).getStdCoors().x << " " << gestures[i].getJointByIndex(j).getStdCoors().y << " " << gestures[i].getJointByIndex(j).getStdCoors().z << " " << gestures[i].getJointByIndex(j).getStdCoors().x_angle << " " << gestures[i].getJointByIndex(j).getStdCoors().y_angle << " " << gestures[i].getJointByIndex(j).getStdCoors().z_angle << std::endl;
         }
     }
+}
+
+void Model::exportData(std::string fileName) {
+    std::cout << "Exporting data to " << fileName << std::endl;
+
+    // Export data to csv file
+    std::ofstream file;
+    file.open(fileName);
+
+    // Fill the file with data
+    for (auto i = 0; i < gestures.size(); i++)
+    {
+        if(i == 0){
+            file << "gesture";
+            for (auto j = 0; j < gestures[i].size(); j++)
+            {
+                file << "," << "mean_x_" << gestures[i].getJointByIndex(j).getName() << "," "mean_y_" << gestures[i].getJointByIndex(j).getName() << "," << "mean_z_" << gestures[i].getJointByIndex(j).getName() << "," << "mean_x_angle_" << gestures[i].getJointByIndex(j).getName() << "," << "mean_y_angle_" << gestures[i].getJointByIndex(j).getName() << "," << "mean_z_angle_" << gestures[i].getJointByIndex(j).getName() << "," << "std_x_" << gestures[i].getJointByIndex(j).getName() << "," << "std_y_" << gestures[i].getJointByIndex(j).getName() << "," << "std_z_" << gestures[i].getJointByIndex(j).getName() << "," << "std_x_angle_" << gestures[i].getJointByIndex(j).getName() << "," << "std_y_angle_" << gestures[i].getJointByIndex(j).getName() << "," << "std_z_angle_" << gestures[i].getJointByIndex(j).getName();
+            }
+            file << "\n";
+        }
+        file << gestures[i].getName();
+        for (auto j = 0; j < gestures[i].size(); j++)
+        {
+             file << "," << gestures[i].getJointByIndex(j).getMeanCoors().x << "," << gestures[i].getJointByIndex(j).getMeanCoors().y << "," << gestures[i].getJointByIndex(j).getMeanCoors().z << "," << gestures[i].getJointByIndex(j).getMeanCoors().x_angle << "," << gestures[i].getJointByIndex(j).getMeanCoors().y_angle << "," << gestures[i].getJointByIndex(j).getMeanCoors().z_angle << "," << gestures[i].getJointByIndex(j).getStdCoors().x << "," << gestures[i].getJointByIndex(j).getStdCoors().y << "," << gestures[i].getJointByIndex(j).getStdCoors().z << "," << gestures[i].getJointByIndex(j).getStdCoors().x_angle << "," << gestures[i].getJointByIndex(j).getStdCoors().y_angle << "," << gestures[i].getJointByIndex(j).getStdCoors().z_angle;
+        }
+        file << "\n";
+    }
+
+    file.close();
+
+    std::cout << "Data exported to " << fileName << std::endl;
 }
 
 void Model::visualizeGestureByName(std::string gestureName){
