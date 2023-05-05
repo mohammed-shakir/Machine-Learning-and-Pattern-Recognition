@@ -4,6 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn import svm
+import math
 
 
 def train_and_test_model(type_of_model, **kwargs):
@@ -24,9 +25,20 @@ def train_and_test_model(type_of_model, **kwargs):
     elif type_of_model == 'random_forest':
         clf = RandomForestClassifier()
     elif type_of_model == 'knn':
-        clf = KNeighborsClassifier(n_neighbors=kwargs['n_neighbors'])
+        length = len(data)
+        best_k_value = 0
+        best_accuracy = 0
+        for i in range(1, int(math.sqrt(length))):
+            clf = KNeighborsClassifier(n_neighbors=i)
+            clf = clf.fit(X, Y)
+            accuracy = clf.score(X_test, Y_test)
+            if accuracy > best_accuracy:
+                best_accuracy = accuracy
+                best_k_value = i
+        print('Best k value for knn: {}'.format(best_k_value))
+        clf = KNeighborsClassifier(n_neighbors=best_k_value)
     elif type_of_model == 'mlp':
-        clf = MLPClassifier(max_iter=data.size, random_state=kwargs['random_state'])
+        clf = MLPClassifier(max_iter=data.size, random_state=None)
     elif type_of_model == 'svm':
         clf = svm.SVC(kernel="linear")
     clf = clf.fit(X, Y)
@@ -40,8 +52,8 @@ def train_and_test_model(type_of_model, **kwargs):
 def main():
     train_and_test_model(type_of_model="decision_tree")
     train_and_test_model(type_of_model="random_forest")
-    train_and_test_model(type_of_model="knn", n_neighbors=3)
-    train_and_test_model(type_of_model="mlp", random_state=1)
+    train_and_test_model(type_of_model="knn")
+    train_and_test_model(type_of_model="mlp")
     train_and_test_model(type_of_model="svm")
 
 
