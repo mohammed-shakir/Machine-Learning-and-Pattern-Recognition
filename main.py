@@ -3,6 +3,11 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import VotingClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
 from sklearn import svm
 import math
 
@@ -41,6 +46,15 @@ def train_and_test_model(type_of_model, **kwargs):
         clf = MLPClassifier(max_iter=data.size, random_state=None)
     elif type_of_model == 'svm':
         clf = svm.SVC(kernel="linear")
+    elif type_of_model == 'bagging':
+        clf = BaggingClassifier(DecisionTreeClassifier(), n_estimators=100, random_state=0)
+    elif type_of_model == 'extra_trees':
+        clf = ExtraTreesClassifier(n_estimators=100, random_state=0)
+    elif type_of_model == 'voting':
+        clf1 = LogisticRegression(multi_class='multinomial', random_state=0, max_iter=data.size)
+        clf2 = RandomForestClassifier(n_estimators=100, random_state=0)
+        clf3 = GaussianNB()
+        clf = VotingClassifier(estimators=[('lr', clf1), ('rf', clf2), ('gnb', clf3)], voting=kwargs["type"])
     clf = clf.fit(X, Y)
 
     y_pred = clf.predict(X)
@@ -50,14 +64,15 @@ def train_and_test_model(type_of_model, **kwargs):
 
 
 def main():
+    print("--------------------- Task 2 ---------------------")
     train_and_test_model(type_of_model="decision_tree")
     train_and_test_model(type_of_model="random_forest")
     train_and_test_model(type_of_model="knn")
     train_and_test_model(type_of_model="mlp")
     train_and_test_model(type_of_model="svm")
-
-
-
+    print("--------------------- Task 3 ---------------------")
+    train_and_test_model(type_of_model="bagging")
+    train_and_test_model(type_of_model="extra_trees")
+    train_and_test_model(type_of_model="voting", type="hard")
 
 main()
-
